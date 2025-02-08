@@ -1,7 +1,14 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 
 app = FastAPI()
+
+class Post(BaseModel):
+    title:str
+    content: str
+
+
 
 posts = [
     {"id": 1, "title": "First Post", "content": "This is the first post"},
@@ -32,41 +39,37 @@ async def get_post(post_id: int):
     
     for post in posts:
         if post["id"] == post_id:
-            # print(post)
-
             return {"post": post}
 
 @app.post("/")
-async def create_post(post:dict):
-    # print(post)
-    # print(type(post))
-    posts.append(post)
-    # print(posts[-1])
+async def create_post(post:Post):
+   
+    new_post_id =posts[-1]["id"] + 1 if len(posts) > 0 else 1
+    new_post = post.model_dump()
+    new_post["id"] = new_post_id
+   
+    posts.append(new_post)
+    
     return posts[-1]
 
 
 @app.put("/posts/{post_id}")
-async def update_post(post_id: int, updated_post: dict):
-    # print(post_id)
-    # print(updated_post)
-    
+async def update_post(post_id: int, updated_post: Post):
+      
     found = False
 
     for post in posts:
-        # print(post)
-        # print(post["id"])
-        # print(type(post["id"]))
-        # print(type(post_id))
+        
         if post["id"] == post_id:
             found = True
+            updated_post_id = post["id"]
+            updated_post = updated_post.model_dump()
+            updated_post["id"] = updated_post_id
+
             post.update(updated_post)
-            # print(f"found = {found}")    
-            # print(posts) 
             return {"message": "Post updated successfully"}
             
 
-    # print(f"found = {found}") 
-    # print(posts)  
     return {"message": f"Post with id {post_id} was not found"}
 
 
