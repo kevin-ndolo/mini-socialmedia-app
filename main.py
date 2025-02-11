@@ -1,5 +1,29 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import os
+
+
+
+
+# Connect to an existing database using raw SQL
+# while True:
+#     try:
+        
+#         conn = psycopg2.connect(host=os.getenv('DATABASE_HOSTNAME'), dbname=os.getenv('DATABASE_NAME'), user=os.getenv('DATABASE_USERNAME'), password=os.getenv('DATABASE_PASSWORD'), cursor_factory=RealDictCursor)
+#         cursor = conn.cursor() 
+#         print('db connection successful')
+#         break
+
+#     except Exception as error:
+#         print("Connecting to database failed")
+#         print("Error", error)
+#         time.sleep(5)
+
+
+
 
 
 app = FastAPI()
@@ -22,6 +46,9 @@ posts = [
     {"id": 9, "title": "Ninth Post", "content": "This is the ninth post"},
     {"id": 10, "title": "Tenth Post", "content": "This is the tenth post"}
 ]
+
+
+
 
 @app.get("/")
 async def root():
@@ -90,3 +117,10 @@ async def delete_post(post_id: int):
     print(f"found = {found}")
     print(posts)
     return {"message": f"Post with id {post_id} was not found"}        
+
+
+
+
+
+
+
