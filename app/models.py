@@ -13,4 +13,12 @@ class Post(Base):
     published = Column(Boolean, nullable=True, server_default='TRUE')
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
 
+# User model
+class User(Base):
+    # table name to be used in the postgres database
+    __tablename__ = "users"
     
+    id = Column(Integer, primary_key=True, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
