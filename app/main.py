@@ -3,10 +3,11 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+from .routers import user, post
+
 
 
 
@@ -36,167 +37,17 @@ while True:
         print("Error", error)
         time.sleep(5)
 
-# Passlib context for hashing passwords
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 
 app = FastAPI()
 
 
+app.include_router(user.router)
+app.include_router(post.router)
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello Universe"}
 
-
-
-@app.get("/posts/", response_model=list[schemas.Post])
-async def get_posts(db: Session = Depends(get_db)):
-    
-    # # Execute a query via vanilla SQL 
-    # cursor.execute("""SELECT * FROM posts""")
-    
-    # # Retrieve query results via vanilla SQL using psycopg2
-    # posts =  cursor.fetchall()
-
-    posts = db.query(models.Post).all()
-    # print(posts)
-
-    if posts:
-        return posts
-    return {"message": "No posts found"}
-
-  
-@app.get("/posts/{post_id}", response_model=schemas.Post) 
-async def get_post(post_id: int, db: Session = Depends(get_db)):
-    # print(schemas.Postout)
-    # print(type(schemas.Postout))
-
-    # # Execute a query via vanilla SQL 
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
-    
-    # # Retrieve query results via vanilla SQL using psycopg2
-    # post =  cursor.fetchone()
-    # print(post)
-
-    post = db.query(models.Post).filter(models.Post.id == post_id).first()
-    # print(post)
-
-    if not post:
-        raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
-    
-    return post
-
-
-@app.post("/", response_model=schemas.Post)
-async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db)):
-          
-    # cursor.execute("""INSERT INTO posts (title, content) VALUES (%s, %s) RETURNING *""", (post.title, post.content))
-
-    # new_post = cursor.fetchone()
-    # print(new_post)
-    # conn.commit()
-
-    # print(post)
-    
-    # new_post = models.Post(title=post.title, content=post.content, published=post.published)
-    new_post = models.Post(**post.dict())
-    # print(new_post)
-    db.add(new_post)
-    db.commit()
-    db.refresh(new_post)
-    
-    return new_post
-
-
-@app.put("/posts/{post_id}", response_model=schemas.Post)
-async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)):
-     
-    # # check if post with post_id exists
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
-    # post = cursor.fetchone()
-    # print(f"Post with id {post_id} is:", post)
-    
-    # if post:
-    #     cursor.execute("""UPDATE posts SET title = %s, content = %s WHERE id = %s RETURNING *""", (updated_post.title, updated_post.content, post_id))
-    #     returned_updated_post = cursor.fetchone()
-    #     print(returned_updated_post)
-    #     conn.commit()
-       
-    #     return returned_updated_post
-
-
-    # return {"message": f"Post with id {post_id} was not found"}
-
-    print(post_id)
-    print(updated_post)
-
-    # check if post with post_id exists
-    post_query = db.query(models.Post).filter(models.Post.id == post_id)
-
-    post = post_query.first()
-
-    if post == None:
-        raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
-    
-    post_query.update(updated_post.dict(), synchronize_session=False)
-
-    db.commit()
-
-    db.refresh(post)
-
-    return post
-
-
-@app.delete("/posts/{post_id}")
-async def delete_post(post_id: int, db: Session = Depends(get_db)):
-    # check if post with post_id exists
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,)) 
-    # post = cursor.fetchone()
-    
-    # if post:
-    #     cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (post_id,))
-    #     deleted_post = cursor.fetchone()
-    #     conn.commit()
-    #     return {"message": f"Post with id {post_id} was deleted successfully"}
-
-    # return {"message": f"Post with id {post_id} was not found"}
-
-
-    post_query = db.query(models.Post).filter(models.Post.id == post_id)
-    print(post_query)
-
-    if post_query.first() == None:
-        raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
-    
-    post_query.delete(synchronize_session=False)
-    
-    db.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-
-@app.post("/users/", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
-async def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
-    print(user)
-
-    # check if user with email exists
-    check_user = db.query(models.User).filter(models.User.email == user.email).first()
-    # print(check_user)
-
-    if check_user :
-        raise HTTPException(status_code=400, detail="User with that email already exists")
-    
-    # hash password
-    hashed_password = pwd_context.hash(user.password)
-    user.password = hashed_password
-    
-
-    new_user = models.User(**user.dict())
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
