@@ -6,6 +6,7 @@ import os
 from . import models, schemas
 from .database import engine, get_db
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 
 
 
@@ -18,6 +19,7 @@ db_username = os.environ.get('DATABASE_USERNAME')
 db_name = os.environ.get('DATABASE_NAME')
 db_hostname = os.environ.get('DATABASE_HOSTNAME')
 db_port = os.environ.get('DATABASE_PORT')
+
 
 
 # Connect to an existing database using raw SQL
@@ -34,6 +36,8 @@ while True:
         print("Error", error)
         time.sleep(5)
 
+# Passlib context for hashing passwords
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 app = FastAPI()
@@ -63,11 +67,7 @@ async def get_posts(db: Session = Depends(get_db)):
         return posts
     return {"message": "No posts found"}
 
-    
-
-   
-   
-
+  
 @app.get("/posts/{post_id}", response_model=schemas.Post) 
 async def get_post(post_id: int, db: Session = Depends(get_db)):
     # print(schemas.Postout)
@@ -87,6 +87,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
     
     return post
+
 
 @app.post("/", response_model=schemas.Post)
 async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db)):
@@ -188,6 +189,11 @@ async def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
     if check_user :
         raise HTTPException(status_code=400, detail="User with that email already exists")
     
+    # hash password
+    hashed_password = pwd_context.hash(user.password)
+    user.password = hashed_password
+    
+
     new_user = models.User(**user.dict())
     db.add(new_user)
     db.commit()
