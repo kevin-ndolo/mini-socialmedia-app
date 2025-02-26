@@ -1,10 +1,8 @@
-from fastapi import Depends, FastAPI, HTTPException, Response, status, APIRouter
+from fastapi import Depends, HTTPException, status, APIRouter
 from .. import models, schemas, utils
 from ..database import get_db 
 from sqlalchemy.orm import Session
 
-
-# app= FastAPI()
 
 router = APIRouter(
     prefix="/users",
@@ -14,11 +12,10 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
 async def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
-    # print(user)
-
+   
     # check if user with email exists
     check_user = db.query(models.User).filter(models.User.email == user.email).first()
-    # print(check_user)
+   
 
     if check_user :
         raise HTTPException(status_code=400, detail="User with that email already exists")
@@ -38,9 +35,9 @@ async def create_user(user:schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/{user_id}/", response_model=  schemas.UserOut) 
 async def get_user( user_id:int, db: Session = Depends(get_db)):
-    # print(user_id)
+    
     user = db.query(models.User).filter(models.User.id == user_id).first()
-    # print(user)
+    
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {user_id} was not found")

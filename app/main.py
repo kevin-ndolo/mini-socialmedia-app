@@ -1,12 +1,11 @@
 import time
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import FastAPI
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-from . import models, schemas, utils
-from .database import engine, get_db
-from sqlalchemy.orm import Session
-from .routers import user, post
+from . import models
+from .database import engine
+from .routers import user, post,auth
 
 
 
@@ -45,6 +44,7 @@ app = FastAPI()
 
 app.include_router(user.router)
 app.include_router(post.router)
+app.include_router(auth.router) 
 
 
 @app.get("/")
