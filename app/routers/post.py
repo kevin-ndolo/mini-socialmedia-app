@@ -29,7 +29,7 @@ async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth
 
   
 @router.get("/{post_id}/", response_model=schemas.Post) 
-async def get_post(post_id: int, db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user)):
+async def get_post(post_id: int, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
     
     # # Execute a query via vanilla SQL 
     # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
@@ -47,7 +47,7 @@ async def get_post(post_id: int, db: Session = Depends(get_db),  user_id: int = 
 
 
 @router.post("/", response_model=schemas.Post)
-async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user)):
+async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
 
           
     # cursor.execute("""INSERT INTO posts (title, content) VALUES (%s, %s) RETURNING *""", (post.title, post.content))
@@ -56,7 +56,11 @@ async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  u
     # print(new_post)
     # conn.commit()
 
-    print(user_id)
+    print(current_user)
+    print(current_user.id)
+    print(current_user.email)
+  
+    
     
     # new_post = models.Post(title=post.title, content=post.content, published=post.published)
     new_post = models.Post(**post.dict())
@@ -69,7 +73,7 @@ async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  u
 
 
 @router.put("/{post_id}/", response_model=schemas.Post)
-async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user)):
+async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
      
     # # check if post with post_id exists
     # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
@@ -104,7 +108,7 @@ async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Sessio
 
 
 @router.delete("/{post_id}/")
-async def delete_post(post_id: int, db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user)):
+async def delete_post(post_id: int, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
     # check if post with post_id exists
     # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,)) 
     # post = cursor.fetchone()
