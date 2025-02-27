@@ -63,7 +63,7 @@ async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  c
     
     
     # new_post = models.Post(title=post.title, content=post.content, published=post.published)
-    new_post = models.Post(**post.dict())
+    new_post = models.Post(owner_id=current_user.id, **post.dict())
     
     db.add(new_post)
     db.commit()
@@ -96,7 +96,10 @@ async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Sessio
     post = post_query.first()
 
     if post == None:
-        raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id {post_id} was not found")
+    
+    if post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail= f"Not authorized to perform requested action")
     
     post_query.update(updated_post.dict(), synchronize_session=False)
 
@@ -127,6 +130,9 @@ async def delete_post(post_id: int, db: Session = Depends(get_db),  current_user
 
     if post_query.first() == None:
         raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
+    
+    if post_query.first().owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Not authorized to perform requested action")
     
     post_query.delete(synchronize_session=False)
     

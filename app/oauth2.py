@@ -18,8 +18,6 @@ ALGORITHM = os.environ.get('ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
-print(ACCESS_TOKEN_EXPIRE_MINUTES)
-
 def create_access_token(data: dict):
     to_encode = data.copy()
     
