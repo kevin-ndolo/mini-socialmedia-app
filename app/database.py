@@ -4,12 +4,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-
 db_password = os.environ.get('DATABASE_PASSWORD')
 db_username = os.environ.get('DATABASE_USERNAME')
 db_name = os.environ.get('DATABASE_NAME')
 db_hostname = os.environ.get('DATABASE_HOSTNAME')
 db_port = os.environ.get('DATABASE_PORT')
+
 
 # SQLALCHEMY_DATABASE_URL = "postgresql://<username>:<password>@<ip-address/hostname>/<database_name>"
 

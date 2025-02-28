@@ -15,14 +15,8 @@ router = APIRouter(
 
 @router.get("/", response_model=list[schemas.Post])
 async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user),
-                    limit: int = 20, skip: int = 0, search: Optional[str] = ""):
-    
-    # # Execute a query via vanilla SQL 
-    # cursor.execute("""SELECT * FROM posts""")
-    
-    # # Retrieve query results via vanilla SQL using psycopg2
-    # posts =  cursor.fetchall()
-
+                    limit: int = 50, skip: int = 0, search: Optional[str] = ""):
+   
     posts = db.query(models.Post).filter(models.Post.title.ilike(f"%{search}%")).limit(limit).offset(skip).all()
     
     if posts:
@@ -32,13 +26,7 @@ async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth
   
 @router.get("/{post_id}/", response_model=schemas.Post) 
 async def get_post(post_id: int, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
-    
-    # # Execute a query via vanilla SQL 
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
-    
-    # # Retrieve query results via vanilla SQL using psycopg2
-    # post =  cursor.fetchone()
-    
+     
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     
 
@@ -51,18 +39,6 @@ async def get_post(post_id: int, db: Session = Depends(get_db),  current_user: i
 @router.post("/", response_model=schemas.Post)
 async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
 
-          
-    # cursor.execute("""INSERT INTO posts (title, content) VALUES (%s, %s) RETURNING *""", (post.title, post.content))
-
-    # new_post = cursor.fetchone()
-    # print(new_post)
-    # conn.commit()
-
-    # print(current_user)
-    # print(current_user.id)
-    # print(current_user.email)
-  
-    
     
     # new_post = models.Post(title=post.title, content=post.content, published=post.published)
     new_post = models.Post(owner_id=current_user.id, **post.dict())
@@ -76,22 +52,7 @@ async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  c
 
 @router.put("/{post_id}/", response_model=schemas.Post)
 async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
-     
-    # # check if post with post_id exists
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,))
-    # post = cursor.fetchone()
-    
-    
-    # if post:
-    #     cursor.execute("""UPDATE posts SET title = %s, content = %s WHERE id = %s RETURNING *""", (updated_post.title, updated_post.content, post_id))
-    #     returned_updated_post = cursor.fetchone()
-    #     conn.commit()
-       
-    #     return returned_updated_post
-
-
-    # return {"message": f"Post with id {post_id} was not found"}
-
+  
     # check if post with post_id exists
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
 
@@ -115,18 +76,6 @@ async def update_post(post_id: int, updated_post: schemas.PostCreate, db: Sessio
 @router.delete("/{post_id}/")
 async def delete_post(post_id: int, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
     # check if post with post_id exists
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s""", (post_id,)) 
-    # post = cursor.fetchone()
-    
-    # if post:
-    #     cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (post_id,))
-    #     deleted_post = cursor.fetchone()
-    #     conn.commit()
-    #     return {"message": f"Post with id {post_id} was deleted successfully"}
-
-    # return {"message": f"Post with id {post_id} was not found"}
-
-
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
    
 
