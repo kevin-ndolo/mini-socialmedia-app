@@ -1,4 +1,5 @@
 
+from typing import Optional
 from fastapi import Depends, HTTPException, Response, status, APIRouter
 from .. import models, schemas, oauth2
 from ..database import get_db 
@@ -13,7 +14,8 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[schemas.Post])
-async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user)):
+async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth2.get_current_user),
+                    limit: int = 20, skip: int = 0, search: Optional[str] = ""):
     
     # # Execute a query via vanilla SQL 
     # cursor.execute("""SELECT * FROM posts""")
@@ -21,7 +23,7 @@ async def get_posts(db: Session = Depends(get_db),  user_id: int = Depends(oauth
     # # Retrieve query results via vanilla SQL using psycopg2
     # posts =  cursor.fetchall()
 
-    posts = db.query(models.Post).all()
+    posts = db.query(models.Post).filter(models.Post.title.ilike(f"%{search}%")).limit(limit).offset(skip).all()
     
     if posts:
         return posts
@@ -56,9 +58,9 @@ async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  c
     # print(new_post)
     # conn.commit()
 
-    print(current_user)
-    print(current_user.id)
-    print(current_user.email)
+    # print(current_user)
+    # print(current_user.id)
+    # print(current_user.email)
   
     
     
