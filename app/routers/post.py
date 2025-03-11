@@ -36,8 +36,6 @@ async def get_post(post_id: int, db: Session = Depends(get_db),  current_user: i
     return post
 
 
-
-
 @router.post("/", response_model=schemas.Post)
 async def create_post(post:schemas.PostCreate, db: Session = Depends(get_db),  current_user: int = Depends(oauth2.get_current_user)):
 
