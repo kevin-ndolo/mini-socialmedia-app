@@ -29,12 +29,11 @@ async def get_post(post_id: int, db: Session = Depends(get_db),  current_user: i
      
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     
+
     if not post:
         raise HTTPException(status_code=404, detail=f"Post with id {post_id} was not found")
     
     return post
-
-
 
 
 @router.post("/", response_model=schemas.Post)
