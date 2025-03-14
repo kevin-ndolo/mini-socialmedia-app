@@ -17,9 +17,7 @@ db_name = os.environ.get('DATABASE_NAME')
 db_hostname = os.environ.get('DATABASE_HOSTNAME')
 db_port = os.environ.get('DATABASE_PORT')
 
-
 app = FastAPI()
-
 
 origins = ["*"]
 
@@ -32,12 +30,10 @@ app.add_middleware(
 )
 
 
-
 app.include_router(user.router)
 app.include_router(post.router)
 app.include_router(auth.router) 
 app.include_router(vote.router)
-
 
 @app.get("/")
 async def root():
