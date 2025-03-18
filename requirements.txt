@@ -30,7 +30,7 @@ mdurl==0.1.2
 packaging==24.2
 passlib==1.7.4
 pathspec==0.12.1
-psycopg2-binary==2.9.10
+psycopg2==2.9.10
 pydantic==2.10.6
 pydantic-settings==2.8.1
 pydantic_core==2.27.2
