@@ -1,0 +1,39 @@
+
+services:
+    mini-socialmedia-app-docker:
+                            build: .
+                            depends_on:
+                                - postgres
+                            ports:
+                                #- <port on localhost>:<port on container>
+                                - 8000:8000
+                            volumes:
+                                - ./:/usr/src/app:ro
+                            # env_file: 
+                            #     - ./.env
+
+                            environment:
+                                - DATABASE_HOSTNAME=postgres
+                                - DATABASE_PORT=5432
+                                - DATABASE_PASSWORD=mbuguz
+                                - DATABASE_NAME=mini-socialmedia-app
+                                - DATABASE_USERNAME=postgres
+                                - SECRET_KEY=95a3c4e2400e09f35171029c1c154cce392d2548cc7aa054cdd6663b5b9db3ec
+                                - ALGORITHM=HS256
+                                - ACCESS_TOKEN_EXPIRE_MINUTES=300
+                            
+                            # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+                            # depends_on:
+                            #     - postgres
+ 
+    postgres:
+              image: postgres
+              environment:
+                  - POSTGRES_PASSWORD=mbuguz
+                  - POSTGRES_DB=mini-socialmedia-app
+              
+              volumes:
+                  - postgres-db:/var/lib/postgresql/data
+
+volumes:
+     postgres-db:
