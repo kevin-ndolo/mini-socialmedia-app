@@ -19,17 +19,17 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
-def override_get_db(): 
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def override_get_db(): 
+#     db = TestingSessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
-# Override the get_db function in the app to use the Testing Database
-app.dependency_overrides[get_db] = override_get_db
+# # Override the get_db function in the app to use the Testing Database
+# app.dependency_overrides[get_db] = override_get_db
 
 
 """ 
@@ -89,8 +89,13 @@ i.e
 All in all the session_fixture will always be called first as any test that needs a client will call the client fixture which will in turn call session_fixture as it depends on it.
 
 
+Now that we have override_get_db in the client fixture we no longer need to run it above and can remove/disable it and since we disabling it we can also disable app.dependency_overrides[get_db] = override_get_db
+as it calls the override_get_db function up above. So we now only call this two functions in the client fixture. Similarly we can disable creating the database up above as were creating and dropping the database
+in the session_fixture. 
 
 
+
+Use "pytest --disable-warnings  -vsx .\tests\test_users.py" to run the test in the console.
 
 """
 
