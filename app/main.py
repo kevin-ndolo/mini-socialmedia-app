@@ -6,7 +6,6 @@ from .routers import user, post, auth, vote
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
 # This will create all our models in the database
 # models.Base.metadata.create_all(bind=engine)
 
