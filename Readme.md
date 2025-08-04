@@ -1,6 +1,3 @@
----
-
-```markdown
 # 🧵 Mini Social Media API
 
 A scalable, containerized REST API built with **FastAPI**, powered by **PostgreSQL**, and orchestrated with **Docker**. It features secure user authentication, post creation with voting mechanics, and robust testing/migration pipelines via **Alembic** and **Pytest**.
@@ -106,8 +103,3 @@ Fixtures handle DB setup/teardown and TestClient overrides.
 
 ## 📄 License
 MIT — use, remix, and deploy freely.
-
-```
-
----
-
